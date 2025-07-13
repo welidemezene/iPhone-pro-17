@@ -14,6 +14,20 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // Cleanup function to restore scroll when component unmounts
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileMenuOpen]);
+
   useEffect(() => {
     // Animate navbar items on load
     gsap.fromTo('.nav-item',
@@ -43,8 +57,8 @@ const Navbar = () => {
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled
-        ? 'bg-gray-950/95 backdrop-blur-xl shadow-2xl border-b border-gray-800/50'
-        : 'bg-transparent'
+      ? 'bg-gray-950/95 backdrop-blur-xl shadow-2xl border-b border-gray-800/50'
+      : 'bg-transparent'
       }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
@@ -77,8 +91,23 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="lg:hidden">
+          {/* Mobile Right Side - Search, Cart, and Menu */}
+          <div className="lg:hidden flex items-center space-x-3">
+            {/* Search Icon */}
+            <button className="nav-item p-2 text-white hover:text-gray-300 transition-all duration-300 group">
+              <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+
+            {/* Cart Icon */}
+            <button className="nav-item p-2 text-white hover:text-gray-300 transition-all duration-300 group">
+              <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+            </button>
+
+            {/* Hamburger Menu Button */}
             <button
               className="nav-item p-2 text-white hover:text-gray-300 transition-colors duration-300"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -94,8 +123,8 @@ const Navbar = () => {
             </button>
           </div>
 
-          {/* Search and Bag Icons */}
-          <div className="flex items-center space-x-4">
+          {/* Desktop Search and Bag Icons */}
+          <div className="hidden lg:flex items-center space-x-4">
             <button className="nav-item p-2 text-white hover:text-gray-300 transition-all duration-300 group">
               <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -111,24 +140,49 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Menu */}
-      <div className={`lg:hidden transition-all duration-500 ease-in-out ${isMobileMenuOpen
-          ? 'max-h-96 opacity-100'
-          : 'max-h-0 opacity-0'
-        } overflow-hidden bg-gray-950/95 backdrop-blur-xl border-t border-gray-800/50`}>
-        <div className="px-4 py-6 space-y-4">
-          {navItems.map((item, index) => (
-            <a
-              key={index}
-              href={item.href}
-              className="mobile-menu-item block text-lg font-medium text-white hover:text-gray-300 transition-all duration-300 uppercase tracking-wide py-3 border-b border-gray-800/50 last:border-b-0"
-              onClick={() => setIsMobileMenuOpen(false)}
-              style={{
-                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-              }}
-            >
-              {item.name}
-            </a>
-          ))}
+      <div className={`lg:hidden fixed inset-0 top-16 z-40 transition-all duration-500 ease-in-out ${isMobileMenuOpen
+        ? 'opacity-100 pointer-events-auto'
+        : 'opacity-0 pointer-events-none'
+        } bg-gray-950/98 backdrop-blur-xl`}>
+        <div className="flex flex-col h-full">
+          {/* Menu Header */}
+          <div className="px-6 py-8 border-b border-gray-800/50">
+            <h2 className="text-2xl font-bold text-white uppercase tracking-wide">
+              Menu
+            </h2>
+          </div>
+
+          {/* Menu Items */}
+          <div className="flex-1 px-6 py-8 space-y-2">
+            {navItems.map((item, index) => (
+              <a
+                key={index}
+                href={item.href}
+                className="mobile-menu-item block text-xl font-medium text-white hover:text-gray-300 transition-all duration-300 uppercase tracking-wide py-4 border-b border-gray-800/30 last:border-b-0"
+                onClick={() => setIsMobileMenuOpen(false)}
+                style={{
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                }}
+              >
+                {item.name}
+              </a>
+            ))}
+          </div>
+
+          {/* Menu Footer */}
+          <div className="px-6 py-8 border-t border-gray-800/50">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400 text-sm">© 2025 Apple Inc.</span>
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-white hover:text-gray-300 transition-colors duration-300"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </nav>
